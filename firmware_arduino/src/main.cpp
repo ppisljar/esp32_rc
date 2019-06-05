@@ -24,8 +24,8 @@ WiFiUDP wifiUdp;
 WiFiClient client;
 
 
-DRV8833 motor1(MOTOR1_PWM, MOTOR1_DIR, MOTOR1_CHANNEL, MOTOR2_CHANNEL, 0, 255, 20, false, true); 
-DRV8833 motor2(MOTOR2_PWM, MOTOR2_DIR, MOTOR3_CHANNEL, MOTOR4_CHANNEL, 0, 255, 20, false, true); 
+DRV8833* motor1;
+DRV8833* motor2;
 Servo servo1;
 Servo servo2;
 
@@ -39,6 +39,8 @@ struct settings {
   bool servo2_enabled;
   bool light1_enabled;
   bool light2_enabled;
+  bool motor1_invert;
+  bool motor2_invert;
   byte motor1_max;
   byte motor2_max;
   byte servo1_left;
@@ -58,6 +60,8 @@ struct settings {
 } settings;
 
 void loadSettings() {
+  settings.motor1_invert = EEPROM.readBool(E_ADDR_MOTOR1_INVERT);
+  settings.motor2_invert = EEPROM.readBool(E_ADDR_MOTOR2_INVERT);
   settings.motor1_enabled = EEPROM.readBool(E_ADDR_MOTOR1_ENABLED);
   settings.motor2_enabled = EEPROM.readBool(E_ADDR_MOTOR2_ENABLED);
   settings.servo1_enabled = EEPROM.readBool(E_ADDR_SERVO1_ENABLED);
@@ -84,6 +88,8 @@ void loadSettings() {
 }
 
 void writeSettings() {
+  EEPROM.writeBool(E_ADDR_MOTOR1_INVERT, settings.motor1_invert);
+  EEPROM.writeBool(E_ADDR_MOTOR2_INVERT, settings.motor2_invert);
   EEPROM.writeBool(E_ADDR_MOTOR1_ENABLED, settings.motor1_enabled);
   EEPROM.writeBool(E_ADDR_MOTOR2_ENABLED, settings.motor2_enabled);
   EEPROM.writeBool(E_ADDR_SERVO1_ENABLED, settings.servo1_enabled);
@@ -111,12 +117,12 @@ void writeSettings() {
 
 void parseMotor2Byte(byte command) {
   if (!settings.motor2_enabled) return;
-  motor2.drive(command, settings.motor2_max, 7, false, false);
+  motor2->drive(command, settings.motor2_max, 7, false, false);
 }
 
 void parseMotorByte(byte command, uint motor_dir, uint motor_pwm) {
   if (!settings.motor1_enabled) return;
-  motor1.drive(command, settings.motor1_max, 7, false, false);
+  motor1->drive(command, settings.motor1_max, 7, false, false);
 }
 
 void parseServo1Byte(uint position) {
@@ -174,6 +180,14 @@ void setup() {
   // pinMode(2, OUTPUT);
   // pinMode(27, OUTPUT);
 
+  if (settings.motor1_enabled) {
+    if (settings.motor1_invert) motor1 = new DRV8833(MOTOR1_DIR, MOTOR1_PWM, MOTOR1_CHANNEL, MOTOR2_CHANNEL, 0, 255, 20, false, true); 
+    else motor1 = new DRV8833(MOTOR1_PWM, MOTOR1_DIR, MOTOR1_CHANNEL, MOTOR2_CHANNEL, 0, 255, 20, false, true); 
+  }
+  if (settings.motor2_enabled) {
+    if (settings.motor2_invert) motor2 = new DRV8833(MOTOR2_DIR, MOTOR2_PWM, MOTOR3_CHANNEL, MOTOR4_CHANNEL, 0, 255, 20, false, true); 
+    else motor2 = new DRV8833(MOTOR2_PWM, MOTOR2_DIR, MOTOR3_CHANNEL, MOTOR4_CHANNEL, 0, 255, 20, false, true); 
+  }
   if (settings.servo1_enabled) {
     pinMode(SERVO1, OUTPUT);
     servo1.attach(SERVO1, SERVO1_CHANNEL); //, optional int minAngle, optional int maxAngle, optional int minPulseWidth, optional int maxPulseWidth
@@ -371,6 +385,8 @@ String template_processor(const String& var)
 {
   if(var == "motor1_enabled") return settings.motor1_enabled ? F("checked") : String();
   else if(var == "motor2_enabled") return settings.motor2_enabled ? F("checked") : String();
+  else if(var == "motor1_invert") return settings.motor1_invert ? F("checked") : String();
+  else if(var == "motor2_invert") return settings.motor2_invert ? F("checked") : String();
   else if(var == "servo1_enabled") settings, settings.servo1_enabled ? F("checked") : String();
   else if(var == "servo2_enabled") return settings.servo2_enabled ? F("checked") : String();
   else if(var == "light1_enabled") return settings.light1_enabled ? F("checked") : String();
@@ -432,6 +448,8 @@ void httpServerLoop(void *pvParameters) {
   server.on("/settings", HTTP_POST, [](AsyncWebServerRequest *request) {
     settings.motor1_enabled = request->hasArg("motor1");
     settings.motor2_enabled = request->hasArg("motor2");
+    settings.motor1_invert = request->hasArg("motor1_invert");
+    settings.motor2_invert = request->hasArg("motor2_invert");
     settings.servo1_enabled = request->hasArg("servo1");
     settings.servo2_enabled = request->hasArg("servo2");
     settings.light1_enabled = request->hasArg("light1");
