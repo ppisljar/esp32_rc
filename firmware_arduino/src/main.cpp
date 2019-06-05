@@ -150,7 +150,7 @@ char command[8] = { 81, 91, 127, 127, 127, 127, 0, 0 };
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Debug.begin(host);
+  
   bool i2c_started = Wire.begin(I2C_SDA, I2C_SCL);
   if (!i2c_started) {
     log(LOG_WARNING, "cant start i2c");
@@ -273,6 +273,8 @@ void setup() {
     });
 
   ArduinoOTA.begin();
+
+  Debug.begin(host);
 
   wifiUdp.begin(2222);
 
