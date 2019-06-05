@@ -1,0 +1,129 @@
+
+<head>
+  <script src="/nipple.js"></script>
+  <link type="text/css" rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <script>
+    var config = {
+        motor1_enabled: "%motor1_enabled%",
+        motor2_enabled: "%motor2_enabled%",
+        servo1_enabled: "%servo1_enabled%",
+        servo2_enabled: "%servo2_enabled%"
+    };
+</script>
+<div class="topbar">
+    <a href="/">BACK</a>
+</div>
+<div id="joy_motor1" class="joy" style="background-color: lightblue;"></div>
+<div id="joy_motor2" class="joy" style="background-color: lightgreen; position: absolute;"></div>
+<div id="joy_servo1" class="joy" style="background-color: lightpink; position: absolute;"></div>
+<div id="slider_servo1" class="slider" style="background-color: lightpink; position: absolute;">
+    <input orient="vertical" class="input-range" type="range" step="1" value="128" min="0" max="255">
+</div>
+<div id="slider_servo2" class="slider" style="background-color: lightyellow; position: absolute; left: 0; right: auto;">
+    <input orient="vertical" class="input-range" type="range" step="1" value="128" min="0" max="255">
+</div>
+<script>
+    var lastM1 = 128;
+    var lastM2 = 128;
+    var lastS1 = 128;
+    var lastS2 = 128;
+    var lastsend = Date.now();
+    function send() {
+        if (Date.now() - 150 < lastsend)
+            return;
+        lastsend = Date.now();
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/value?servo1=' + lastS1 + '&servo2=' + lastS2 + '&motor1=' + lastM1 + '&motor2=' + lastM2);
+        xhr.onload = function() {}
+        ;
+        xhr.send();
+    }
+    function init(settings) {
+        var motor1 = document.getElementById('joy_motor1');
+        if (settings.motor1_enabled) {
+            var joy1 = nipplejs.create({
+                zone: motor1,
+                color: 'blue',
+                lockY: true,
+                size: 255
+            });
+            joy1.on('move', function(event, data) {
+                var y = Math.round(Math.sin(data.angle.radian) * (data.distance)) + 127;
+                lastM1 = y;
+                send();
+            });
+            joy1.on('end', function(event) {
+                lastM1 = 128;
+                setTimeout(function() {
+                    send();
+                }, 100);
+            });
+        } else {
+            motor1.style.display = 'none';
+        }
+        var motor2 = document.getElementById('joy_motor2');
+        if (settings.motor2_enabled) {
+            if (!settings.motor1_enabled) {
+                motor2.style.position = 'relative';
+            }
+            var joy2 = nipplejs.create({
+                zone: motor2,
+                color: 'red',
+                lockY: true,
+                size: 255
+            });
+            joy2.on('move', function(event, data) {
+                var x = Math.round(Math.sin(data.angle.radian) * (data.distance)) + 127;
+                lastM2 = x;
+                send();
+            });
+            joy2.on('end', function(event) {
+                lastM2 = 128;
+                setTimeout(function() {
+                    send();
+                }, 100);
+            });
+        } else {
+            motor2.style.display = 'none';
+        }
+        var servo1 = document.getElementById('joy_servo1');
+        if (settings.servo1_enabled) {
+            if (settings.motor1_enabled && settings.motor2_enabled) {
+                servo1.style.display = 'none';
+                servo1 = document.getElementById('slider_servo1');
+            } else {
+                document.getElementById('slider_servo1').style.display = 'none';
+                var joy3 = nipplejs.create({
+                    zone: servo1,
+                    color: 'red',
+                    lockX: true,
+                    size: 255
+                });
+                joy3.on('move', function(event, data) {
+                    var x = Math.round(Math.cos(data.angle.radian) * (data.distance)) + 127;
+                    lastS1 = x;
+                    send();
+                });
+                joy3.on('end', function(event) {
+                    lastS1 = 128;
+                    setTimeout(function() {
+                        send();
+                    }, 100);
+                });
+            }
+        } else {
+            servo1.style.display = 'none';
+            document.getElementById('slider_servo1').style.display = 'none';
+        }
+        var servo2 = document.getElementById('slider_servo2');
+        if (settings.servo2_enabled) {} else {
+            servo2.style.display = 'none';
+        }
+    }
+    init(config);
+</script>
+</body>
+
+

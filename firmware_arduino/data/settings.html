@@ -1,0 +1,114 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link type="text/css" rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="menu">
+      <h1>Settings</h1>
+	<form method="POST" action="/settings" enctype="multipart/form-data" id="upload_form">
+	  <div class="input">
+	    <span>CAR NAME:</span>
+	    <input type="text" name="name" value="%name%">
+          </div>
+          <div class="input">
+	    <span>SPEED:</span>
+	    <input type="number" name="speed" value="%speed%">
+          </div>
+          <div class="input">
+	    <span>HANDLING:</span>
+	    <input type="number" name="handling" value="%handling%">
+          </div>
+          <div class="input">
+	    <span>CLIMB:</span>
+	    <input type="number" name="climb" value="%climb%">
+          </div>
+          <div class="input">
+	    <span>OFFROAD:</span>
+	    <input type="number" name="offroad" value="%offroad%">
+          </div>
+          <div class="input">
+	    <span>BATTERY:</span>
+	    <input type="number" name="battery" value="%battery%">
+          </div>
+          <div class="input">
+	    <span>IMAGE:</span>
+	    <input type="text" name="image" value="%image%">
+          </div>
+
+	  <fieldset>
+	    <legend>MOTOR1:</legend>
+	    <input type="checkbox" name="motor1" %motor1_enabled%> ENABLE
+
+            <div class="input">
+	      <span>MAX:</span>
+	      <input type="number" name="motor1_max" value="%motor1_max%">
+            </div>
+          </fieldset>
+
+	  <fieldset>
+	    <legend>MOTOR2:</legend>
+	    <input type="checkbox" name="motor2" %motor2_enabled%> ENABLE
+
+            <div class="input">
+	      <span>MAX:</span>
+	      <input type="number" name="motor2_max" value="%motor2_max%">
+            </div>
+          </fieldset>
+
+	  <fieldset>
+	    <legend>SERVO1:</legend>
+	    <input type="checkbox" name="servo1" %servo1_enabled%> ENABLE
+
+            <div class="input">
+	      <span>MAX LEFT:</span>
+	      <input type="number" name="servo1_left" value="%servo1_left%">
+            </div>
+            <div class="input">
+	      <span>MAX RIGHT:</span>
+	      <input type="number" name="servo1_right" value="%servo1_right%">
+            </div>
+          </fieldset>
+
+	  <fieldset>
+	    <legend>SERVO2:</legend>
+	    <input type="checkbox" name="servo2" %servo2_enabled%> ENABLE
+
+           <div class="input">
+	      <span>MAX LEFT:</span>
+	      <input type="number" name="servo2_left" value="%servo2_left%">
+            </div>
+            <div class="input">
+	      <span>MAX RIGHT:</span>
+	      <input type="number" name="servo2_right" value="%servo2_right%">
+            </div>
+          </fieldset>
+
+	  <fieldset>
+	    <legend>PERIPHERIALS</legend>
+	    <input type="checkbox" name="light1" %light1_enabled%> LIGHT1
+	    <input type="checkbox" name="light2" %light2_enabled%> LIGHT2
+          </fieldset>
+
+	  <fieldset>
+	    <legend>WIFI</legend>
+	    <div class="input">
+	      <span>SSID:</span>
+	      <input name="wifi_ssid" value="%wifi_ssid%">
+            </div>
+	    <div class="input">
+	      <span>PASSWORD:</span>
+	      <input name="wifi_password" value="%wifi_password%">
+            </div>
+	    <div class="input">
+	      <span>SERVER IP:</span>
+	      <input name="wifi_server" value="%wifi_server%">
+            </div>
+          </fieldset>
+
+          <input type="submit" value="SAVE" class="button">
+        </form>
+	<a href="/" class="button">RETURN</a>
+    </div>
+  </div>
+</body>
